@@ -11,9 +11,12 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(level
 files = sorted(os.listdir('img1'))
 dict = {}
 dir = 'gt.txt'
+dir_tracking = 'gt_tracking.txt'
 rectangle_englobantes = []
+rectangle_englobantes_tracking = []
 color_dict = {}
 img_bounding_boxes = {}
+
 
 #Object for a bounding
 class Box(object):
@@ -57,6 +60,10 @@ def populate_variables(files):
         for line in d : 
             rectangle_englobantes.append(line.strip("\n").split(','))
 
+    with open(dir_tracking) as d : 
+        for line in d : 
+            rectangle_englobantes_tracking.append(line.strip("\n").split(','))
+
     #populate dict with list of bounding boxes for each picture 
     for i in range(len(files)):
         for j in range(len(rectangle_englobantes)) : 
@@ -66,9 +73,9 @@ def populate_variables(files):
                 l1 = int(rectangle_englobantes[j][4])
                 h1 = int(rectangle_englobantes[j][5])
                 logging.warning((rectangle_englobantes[j][6],rectangle_englobantes[j][7]))
-                if rectangle_englobantes[j][6] == "0" and rectangle_englobantes[j][7] == "3" and files[i] not in img_bounding_boxes : 
+                if h1 <= (1.25 * l1) and files[i] not in img_bounding_boxes :  
                     img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
-                elif rectangle_englobantes[j][6] == "0" and rectangle_englobantes[j][7] == "3": 
+                elif h1 <= (1.25 * l1): 
                     img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
                 elif files[i] not in img_bounding_boxes :
                     img_bounding_boxes[files[i]] = []
@@ -114,9 +121,28 @@ def first_image_init():
         
     cv.imwrite('img2/'+rectangle_englobantes[1][0]+'.jpg', img)
 
+def find_gt_t(image):
+    # print(type(rectangle_englobantes_tracking[0][0]))
+    # print(type(image))
+    total = 0
+    for i in range(len(rectangle_englobantes_tracking)):
+        if rectangle_englobantes_tracking[i][0] == image:
+            total += 1
+    return total
+
+def calc_mota(fn, fp, ids, gt):
+    sum = fn + fp + ids
+    return 1 - (sum/gt)
+
+
 #begin iou calculations 
 def use_iou():
+    fn = 0
+    fp = 0
+    ids = 0
+    gt_t = 0
     for i in range(len(files) - 1) :
+        gt_t = find_gt_t(i)
         column = []
 
         # hold file names for images to examine
@@ -182,7 +208,10 @@ def use_iou():
             cv.imwrite('img2/'+img2, img)
 
 #Running all the functions
+
 populate_variables(files)
-create_folder("img2")
-first_image_init()
-use_iou()
+# create_folder("img2")
+# first_image_init()
+# use_iou()
+
+print(find_gt_t("1"))
