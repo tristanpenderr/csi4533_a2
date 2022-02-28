@@ -162,7 +162,19 @@ def find_fp(image):
         if flag == 0:
             fp+=1
     return fp
-    
+
+#Find false negatives (Only used when the IOU is under 0.4): params is a single bounding box of concern
+#Returns true, its a false negative, false is a correct negative
+def find_fn(bb, image):
+    frame_cars = []
+    for i in range(len(rectangle_englobantes_tracking_voiture)):
+        if rectangle_englobantes_tracking_voiture[i][0] == image:
+            frame_cars.append(rectangle_englobantes_tracking_voiture[i])
+    for i in range(len(frame_cars)):
+        if bb.x1 == int(frame_cars[i][2]) and bb.y1 == int(frame_cars[i][3]):
+            return True
+    return False
+
 #begin iou calculations 
 def use_iou():
     fn = 0
@@ -241,9 +253,6 @@ populate_variables(files)
 # create_folder("img2")
 # first_image_init()
 # use_iou()
-# print(img_bounding_boxes[files[0]][0].x1)
-# for i in range(len(rectangle_englobantes_tracking_voiture)):
-#     if rectangle_englobantes_tracking_voiture[i][0] == "1":
-#         print(rectangle_englobantes_tracking_voiture[i])
-print(find_fp("1"))
+
+print(find_fn(img_bounding_boxes[files[0]][1], "1"))
 # print(find_gt_t("1"))
