@@ -164,7 +164,7 @@ def find_fp(image):
     return fp
 
 #Find false negatives (Only used when the IOU is under 0.4): params is a single bounding box of concern
-#Returns true, its a false negative, false is a correct negative
+#Returns true if it's a false negative, false if its a correct negative
 def find_fn(bb, image):
     frame_cars = []
     for i in range(len(rectangle_englobantes_tracking_voiture)):
