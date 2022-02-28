@@ -66,9 +66,9 @@ def populate_variables(files):
                 l1 = int(rectangle_englobantes[j][4])
                 h1 = int(rectangle_englobantes[j][5])
                 logging.warning((rectangle_englobantes[j][6],rectangle_englobantes[j][7]))
-                if rectangle_englobantes[j][6] == "0" and rectangle_englobantes[j][7] == "3" and files[i] not in img_bounding_boxes : 
+                if h1 <= (1.25 * l1) and files[i] not in img_bounding_boxes :  
                     img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
-                elif rectangle_englobantes[j][6] == "0" and rectangle_englobantes[j][7] == "3": 
+                elif h1 <= (1.25 * l1):
                     img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
                 elif files[i] not in img_bounding_boxes :
                     img_bounding_boxes[files[i]] = []
