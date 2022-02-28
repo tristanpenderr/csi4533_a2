@@ -14,6 +14,7 @@ dir = 'gt.txt'
 dir_tracking = 'gt_tracking.txt'
 rectangle_englobantes = []
 rectangle_englobantes_tracking = []
+rectangle_englobantes_tracking_voiture = []
 color_dict = {}
 img_bounding_boxes = {}
 
@@ -60,9 +61,13 @@ def populate_variables(files):
         for line in d : 
             rectangle_englobantes.append(line.strip("\n").split(','))
 
+    # populate rectange_englobantes_tracking with all the gt_tracking.txt informations
     with open(dir_tracking) as d : 
         for line in d : 
             rectangle_englobantes_tracking.append(line.strip("\n").split(','))
+
+    #populate rectangle_englobantes_tracking_voiture with only car information
+    get_cars()
 
     #populate dict with list of bounding boxes for each picture 
     for i in range(len(files)):
@@ -83,6 +88,11 @@ def populate_variables(files):
 # function for getting image from dict
 def get_image(img_num)  :
     return cv.imread(dict[img_num])
+
+def get_cars() : 
+    for i in range(len(rectangle_englobantes_tracking)):
+        if rectangle_englobantes_tracking[i][7] == "3" :
+            rectangle_englobantes_tracking_voiture.append(rectangle_englobantes_tracking[i])
 
 # generate random color 
 def generate_color() : 
@@ -121,6 +131,7 @@ def first_image_init():
         
     cv.imwrite('img2/'+rectangle_englobantes[1][0]+'.jpg', img)
 
+#find the gt in single image
 def find_gt_t(image):
     # print(type(rectangle_englobantes_tracking[0][0]))
     # print(type(image))
@@ -130,11 +141,28 @@ def find_gt_t(image):
             total += 1
     return total
 
+#MOTA calculation
 def calc_mota(fn, fp, ids, gt):
     sum = fn + fp + ids
     return 1 - (sum/gt)
 
-
+#Find false positives in single image
+def find_fp(image):
+    fp = 0
+    frame_cars = []
+    frame_boxes = img_bounding_boxes[files[int(image)-1]]
+    for i in range(len(rectangle_englobantes_tracking_voiture)):
+        if rectangle_englobantes_tracking_voiture[i][0] == image:
+            frame_cars.append(rectangle_englobantes_tracking_voiture[i])
+    for i in range(len(frame_boxes)) :
+        flag = 0
+        for j in range(len(frame_cars)):
+            if frame_boxes[i].x1 == int(frame_cars[j][2]) and frame_boxes[i].y1 == int(frame_cars[j][3]):
+                flag = 1
+        if flag == 0:
+            fp+=1
+    return fp
+    
 #begin iou calculations 
 def use_iou():
     fn = 0
@@ -213,5 +241,9 @@ populate_variables(files)
 # create_folder("img2")
 # first_image_init()
 # use_iou()
-
-print(find_gt_t("1"))
+# print(img_bounding_boxes[files[0]][0].x1)
+# for i in range(len(rectangle_englobantes_tracking_voiture)):
+#     if rectangle_englobantes_tracking_voiture[i][0] == "1":
+#         print(rectangle_englobantes_tracking_voiture[i])
+print(find_fp("1"))
+# print(find_gt_t("1"))
