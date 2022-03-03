@@ -193,11 +193,46 @@ def find_fn(image):
    
     return counter
             
-    # frame_cars = []
-    # for i in range(len(frame_cars)):
-    #     if bb.x1 == int(frame_cars[i][2]) and bb.y1 == int(frame_cars[i][3]):
-    #         return True
-    # return False
+
+
+def calculate_ids(image1,image2) :
+    ids = 0
+
+    frame_cars_id_tuples = []
+    frame_boxes_id_tuples = []
+
+    frame_cars1 = []
+    for i in range(len(rectangle_englobantes_tracking_voiture)):
+        if rectangle_englobantes_tracking_voiture[i][0] == image1:
+            frame_cars1.append(rectangle_englobantes_tracking_voiture[i])
+    frame_cars2 = []
+    for i in range(len(rectangle_englobantes_tracking_voiture)):
+        if rectangle_englobantes_tracking_voiture[i][0] == image2:
+            frame_cars2.append(rectangle_englobantes_tracking_voiture[i])
+    
+
+    for i in frame_cars1 : 
+        for j in frame_cars2 : 
+            if i[1] == j[1] : 
+                frame_cars_id_tuples.append((int(i[2]),int(i[3]),int(i[4]),int(i[5]),int(j[2]),int(j[3]),int(j[4]),int(j[5])))
+
+
+
+    frame_boxes1 = img_bounding_boxes[files[int(image1)-1]]
+    frame_boxes2 = img_bounding_boxes[files[int(image2)-1]]
+
+    for i in frame_boxes1 : 
+        for j in frame_boxes2 : 
+            if color_dict[(int(image1), i.x1,i.y1)][1] == color_dict[(int(image2), j.x1,j.y1)][1] : 
+                frame_boxes_id_tuples.append((i.x1,i.y1,i.l1,i.h1,j.x1,j.y1,j.l1,j.h1))
+
+    for i in frame_cars_id_tuples : 
+        if i not in frame_boxes_id_tuples : 
+            ids += 1
+
+    return ids
+
+
 
 #begin iou calculations 
 def use_iou():
@@ -282,7 +317,9 @@ populate_variables(files)
 create_folder("img2")
 first_image_init()
 use_iou()
-print(color_dict)
-#print(find_fp("340"))
-print("\n", find_fn("92"))
+# print(color_dict)
+# #print(find_fp("340"))
+# print("\n", find_fn("92"))
+
+print(calculate_ids("22","23"))
 # print(find_gt_t("1"))
