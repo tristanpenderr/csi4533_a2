@@ -8,7 +8,7 @@ from random import randint
 logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 #variables
-files = sorted(os.listdir('img1'))
+files = sorted(os.listdir('./img1'))
 dict = {}
 dir = 'gt.txt'
 dir_tracking = 'gt_tracking.txt'
@@ -78,9 +78,9 @@ def populate_variables(files):
                 l1 = int(rectangle_englobantes[j][4])
                 h1 = int(rectangle_englobantes[j][5])
                 logging.warning((rectangle_englobantes[j][6],rectangle_englobantes[j][7]))
-                if h1 <= (1.25 * l1) and files[i] not in img_bounding_boxes :  
+                if h1 <= (1 * l1) and files[i] not in img_bounding_boxes :  
                     img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
-                elif h1 <= (1.25 * l1): 
+                elif h1 <= (1 * l1): 
                     img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
                 elif files[i] not in img_bounding_boxes :
                     img_bounding_boxes[files[i]] = []
@@ -170,20 +170,28 @@ def find_fn(image):
     counter = 0
     frame_cars = []
     frame_boxes = img_bounding_boxes[files[int(image)-1]]
+    frame_cars_tuples = []
+    frame_boxes_tuples = []
     for i in range(len(rectangle_englobantes_tracking_voiture)):
         if rectangle_englobantes_tracking_voiture[i][0] == image:
             frame_cars.append(rectangle_englobantes_tracking_voiture[i])
-    for i in range(len(frame_cars)):
-        flag = False
-        for j in range(len(frame_boxes)-1):
-             if not(frame_boxes[i].x1 == int(frame_cars[j][2]) and frame_boxes[i].y1 == int(frame_cars[j][3]) and frame_boxes[i].h1 == int(frame_cars[j][5]) and frame_boxes[i].l1 == int(frame_cars[j][4])):
-                counter += 1
+
+    for i in frame_cars :
+        frame_cars_tuples.append((int(i[2]),int(i[3]),int(i[4]),int(i[5]))) 
+
+
+    for i in frame_boxes : 
+        frame_boxes_tuples.append((i.x1,i.y1,i.l1,i.h1))
+
+
+    # Loop to check
+    for i in frame_cars_tuples :
+        if i not in frame_boxes_tuples : 
+            counter += 1
+   
     return counter
             
     # frame_cars = []
-    # for i in range(len(rectangle_englobantes_tracking_voiture)):
-    #     if rectangle_englobantes_tracking_voiture[i][0] == image:
-    #         frame_cars.append(rectangle_englobantes_tracking_voiture[i])
     # for i in range(len(frame_cars)):
     #     if bb.x1 == int(frame_cars[i][2]) and bb.y1 == int(frame_cars[i][3]):
     #         return True
@@ -214,7 +222,7 @@ def use_iou():
             for k in range(len(box_list1)) :
                 max_index = -1
                 iou = calculate_iou(box_list1[k],box_list2[b])
-                if iou == 0 and find_fn():
+                if iou == 0 and find_fn(str(i)):
                     fn+=1
                 row.append(iou)
             if len(row) > 0 : 
@@ -266,10 +274,10 @@ def use_iou():
 #Running all the functions
 
 populate_variables(files)
-# create_folder("img2")
-# first_image_init()
-# use_iou()
+create_folder("img2")
+first_image_init()
+use_iou()
 
-# print(find_fp("158"))
-print(find_fn("1"))
+#print(find_fp("340"))
+print("\n", find_fn("92"))
 # print(find_gt_t("1"))
