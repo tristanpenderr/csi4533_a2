@@ -19,6 +19,7 @@ color_dict = {}
 img_bounding_boxes = {}
 
 
+
 #Object for a bounding
 class Box(object):
     x1 = 0.
@@ -146,6 +147,7 @@ def calc_mota(fn, fp, ids, gt):
     sum = fn + fp + ids
     return 1 - (sum/gt)
 
+
 #Find false positives in single image
 def find_fp(image):
     fp = 0
@@ -199,7 +201,7 @@ def find_fn(image):
 
 #begin iou calculations 
 def use_iou():
-    
+    box_id = 0
     for i in range(len(files) - 1) :
         fn = 0
         fp = 0
@@ -222,8 +224,8 @@ def use_iou():
             for k in range(len(box_list1)) :
                 max_index = -1
                 iou = calculate_iou(box_list1[k],box_list2[b])
-                if iou == 0 and find_fn(str(i)):
-                    fn+=1
+                if iou == 0:
+                    fn = find_fn(int(i))
                 row.append(iou)
             if len(row) > 0 : 
                 max_value = max(row)
@@ -248,13 +250,14 @@ def use_iou():
             for j in range(len(column)) : 
                 if -1 not in column[j] : 
                     new_color = generate_color()
+                    box_id+=1 
                     x1 = box_list2[j].x1
                     y1 = box_list2[j].y1
                     l1 = box_list2[j].l1
                     h1 = box_list2[j].h1
                     cv.rectangle(img,(int(x1),int(y1+h1)), (int(x1+l1),int(y1)), new_color,3)
-                    color_dict[(i+2,x1,y1)] = new_color            
-                else :
+                    color_dict[(i+2,x1,y1)] = [new_color, box_id]          
+                else : 
                     x1 = box_list2[j].x1
                     y1 = box_list2[j].y1
                     l1 = box_list2[j].l1
@@ -263,9 +266,11 @@ def use_iou():
                     orig_index = column[j].index(-1)
                     orig = box_list1[orig_index]
 
-                    new_color = color_dict[(i+1,orig.x1, orig.y1)]
+                    new_color = color_dict[(i+1,orig.x1, orig.y1)][0]
+                    box_new_id = color_dict[(i+1,orig.x1, orig.y1)][1]
                     cv.rectangle(img,(int(x1),int(y1+h1)), (int(x1+l1),int(y1)), new_color,3)
-                    color_dict[(i+2,x1,y1)] = new_color
+                    color_dict[(i+2,x1,y1)] = [new_color, box_new_id]
+
             
             cv.imwrite('img2/'+img2, img)
         else : 
@@ -277,7 +282,7 @@ populate_variables(files)
 create_folder("img2")
 first_image_init()
 use_iou()
-
+print(color_dict)
 #print(find_fp("340"))
 print("\n", find_fn("92"))
 # print(find_gt_t("1"))
