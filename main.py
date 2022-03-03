@@ -157,7 +157,7 @@ def find_fp(image):
     for i in range(len(frame_boxes)) :
         flag = 0
         for j in range(len(frame_cars)):
-            if frame_boxes[i].x1 == int(frame_cars[j][2]) and frame_boxes[i].y1 == int(frame_cars[j][3]):
+            if frame_boxes[i].x1 == int(frame_cars[j][2]) and frame_boxes[i].y1 == int(frame_cars[j][3]) and frame_boxes[i].h1 == int(frame_cars[j][5]) and frame_boxes[i].l1 == int(frame_cars[j][4]):
                 flag = 1
         if flag == 0:
             fp+=1
@@ -165,23 +165,37 @@ def find_fp(image):
 
 #Find false negatives (Only used when the IOU is under 0.4): params is a single bounding box of concern
 #Returns true if it's a false negative, false if its a correct negative
-def find_fn(bb, image):
+def find_fn(image):
+    fn = 0
+    counter = 0
     frame_cars = []
+    frame_boxes = img_bounding_boxes[files[int(image)-1]]
     for i in range(len(rectangle_englobantes_tracking_voiture)):
         if rectangle_englobantes_tracking_voiture[i][0] == image:
             frame_cars.append(rectangle_englobantes_tracking_voiture[i])
     for i in range(len(frame_cars)):
-        if bb.x1 == int(frame_cars[i][2]) and bb.y1 == int(frame_cars[i][3]):
-            return True
-    return False
+        flag = False
+        for j in range(len(frame_boxes)-1):
+             if not(frame_boxes[i].x1 == int(frame_cars[j][2]) and frame_boxes[i].y1 == int(frame_cars[j][3]) and frame_boxes[i].h1 == int(frame_cars[j][5]) and frame_boxes[i].l1 == int(frame_cars[j][4])):
+                counter += 1
+    return counter
+            
+    # frame_cars = []
+    # for i in range(len(rectangle_englobantes_tracking_voiture)):
+    #     if rectangle_englobantes_tracking_voiture[i][0] == image:
+    #         frame_cars.append(rectangle_englobantes_tracking_voiture[i])
+    # for i in range(len(frame_cars)):
+    #     if bb.x1 == int(frame_cars[i][2]) and bb.y1 == int(frame_cars[i][3]):
+    #         return True
+    # return False
 
 #begin iou calculations 
 def use_iou():
-    fn = 0
-    fp = 0
-    ids = 0
-    gt_t = 0
+    
     for i in range(len(files) - 1) :
+        fn = 0
+        fp = 0
+        ids = 0
         gt_t = find_gt_t(i)
         column = []
 
@@ -200,6 +214,8 @@ def use_iou():
             for k in range(len(box_list1)) :
                 max_index = -1
                 iou = calculate_iou(box_list1[k],box_list2[b])
+                if iou == 0 and find_fn():
+                    fn+=1
                 row.append(iou)
             if len(row) > 0 : 
                 max_value = max(row)
@@ -254,5 +270,6 @@ populate_variables(files)
 # first_image_init()
 # use_iou()
 
-print(find_fn(img_bounding_boxes[files[0]][1], "1"))
+# print(find_fp("158"))
+print(find_fn("1"))
 # print(find_gt_t("1"))
