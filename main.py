@@ -1,3 +1,4 @@
+from operator import gt
 import cv2 as cv
 import os
 import logging
@@ -79,9 +80,9 @@ def populate_variables(files):
                 l1 = int(rectangle_englobantes[j][4])
                 h1 = int(rectangle_englobantes[j][5])
                 logging.warning((rectangle_englobantes[j][6],rectangle_englobantes[j][7]))
-                if h1 <= (1 * l1) and files[i] not in img_bounding_boxes :  
+                if h1 <= (1.25 * l1) and files[i] not in img_bounding_boxes :  
                     img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
-                elif h1 <= (1 * l1): 
+                elif h1 <= (1.25 * l1): 
                     img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
                 elif files[i] not in img_bounding_boxes :
                     img_bounding_boxes[files[i]] = []
@@ -265,9 +266,6 @@ def use_iou():
             for k in range(len(box_list1)) :
                 max_index = -1
                 iou = calculate_iou(box_list1[k],box_list2[b])
-                if iou == 0:
-                    fn += find_fn(i + 2)
-                    print("fn: " + str(fn))
                 row.append(iou)
             if len(row) > 0 : 
                 max_value = max(row)
@@ -317,12 +315,11 @@ def use_iou():
             cv.imwrite('img2/'+img2, img)
         else : 
             cv.imwrite('img2/'+img2, img)
-        fp += find_fp(i + 2)
-        print("fp: " + str(fp))
-        ids += calculate_ids(i + 1, i + 2)
-        print("ids: " + str(ids))
-        gt_t += find_gt_t(i + 2)
-        print("gt: " + str(gt_t))
+        fp += find_fp(str(i + 2))
+        ids += calculate_ids(str(i + 1), str(i + 2))
+        gt_t += find_gt_t(str(i + 2))
+        fn += find_fn(str(i + 2))
+    
     return (fn,fp,ids,gt_t)
 
 #Running all the functions
@@ -330,7 +327,8 @@ def use_iou():
 populate_variables(files)
 create_folder("img2")
 first_image_init()
-print(use_iou())
+fn, fp, ids, gt_t = use_iou()
+print(f"The mota of our algorithm is : \n {calc_mota(fn,fp,ids,gt_t)}")
 # print(color_dict)
 # #print(find_fp("340"))
 # print("\n", find_fn("92"))
