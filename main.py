@@ -242,11 +242,12 @@ def calculate_ids(image1,image2) :
 #begin iou calculations 
 def use_iou():
     box_id = 0
+    fn = 0
+    fp = 0
+    ids = 0
+    gt_t = 0
     for i in range(85, 467 - 1) :
-        fn = 0
-        fp = 0
-        ids = 0
-        gt_t = find_gt_t(i)
+        
         column = []
 
         # hold file names for images to examine
@@ -265,7 +266,8 @@ def use_iou():
                 max_index = -1
                 iou = calculate_iou(box_list1[k],box_list2[b])
                 if iou == 0:
-                    fn = find_fn(int(i))
+                    fn += find_fn(i + 2)
+                    print("fn: " + str(fn))
                 row.append(iou)
             if len(row) > 0 : 
                 max_value = max(row)
@@ -315,13 +317,20 @@ def use_iou():
             cv.imwrite('img2/'+img2, img)
         else : 
             cv.imwrite('img2/'+img2, img)
+        fp += find_fp(i + 2)
+        print("fp: " + str(fp))
+        ids += calculate_ids(i + 1, i + 2)
+        print("ids: " + str(ids))
+        gt_t += find_gt_t(i + 2)
+        print("gt: " + str(gt_t))
+    return (fn,fp,ids,gt_t)
 
 #Running all the functions
 
 populate_variables(files)
 create_folder("img2")
 first_image_init()
-use_iou()
+print(use_iou())
 # print(color_dict)
 # #print(find_fp("340"))
 # print("\n", find_fn("92"))
