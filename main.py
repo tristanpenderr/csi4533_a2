@@ -19,8 +19,6 @@ rectangle_englobantes_tracking_voiture = []
 color_dict = {}
 img_bounding_boxes = {}
 
-
-
 #Object for a bounding
 class Box(object):
     x1 = 0.
@@ -91,6 +89,7 @@ def populate_variables(files):
 def get_image(img_num)  :
     return cv.imread(dict[img_num])
 
+#get all the cars in the gt_tracking file
 def get_cars() : 
     for i in range(len(rectangle_englobantes_tracking)):
         if rectangle_englobantes_tracking[i][7] == "3" :
@@ -121,7 +120,6 @@ def create_folder(new_path):
     else:
         logging.info("Succesfully created new path")
 
-
 # initialize first image with rectangles
 def first_image_init():
     img = cv.imread(dict[86])
@@ -136,8 +134,6 @@ def first_image_init():
 
 #find the gt in single image
 def find_gt_t(image):
-    # print(type(rectangle_englobantes_tracking[0][0]))
-    # print(type(image))
     total = 0
     for i in range(len(rectangle_englobantes_tracking)):
         if rectangle_englobantes_tracking[i][0] == image:
@@ -167,8 +163,7 @@ def find_fp(image):
             fp+=1
     return fp
 
-#Find false negatives (Only used when the IOU is under 0.4): params is a single bounding box of concern
-#Returns true if it's a false negative, false if its a correct negative
+#Find false negatives in a single image
 def find_fn(image):
     fn = 0
     counter = 0
@@ -187,19 +182,14 @@ def find_fn(image):
     for i in frame_boxes : 
         frame_boxes_tuples.append((i.x1,i.y1,i.l1,i.h1))
 
-
     # Loop to check
     for i in frame_cars_tuples :
         if i not in frame_boxes_tuples : 
             counter += 1
-   
     return counter
             
-
-
 def calculate_ids(image1,image2) :
     ids = 0
-
     frame_cars_id_tuples = []
     frame_boxes_id_tuples = []
 
@@ -207,18 +197,16 @@ def calculate_ids(image1,image2) :
     for i in range(len(rectangle_englobantes_tracking_voiture)):
         if rectangle_englobantes_tracking_voiture[i][0] == image1:
             frame_cars1.append(rectangle_englobantes_tracking_voiture[i])
+
     frame_cars2 = []
     for i in range(len(rectangle_englobantes_tracking_voiture)):
         if rectangle_englobantes_tracking_voiture[i][0] == image2:
             frame_cars2.append(rectangle_englobantes_tracking_voiture[i])
     
-
     for i in frame_cars1 : 
         for j in frame_cars2 : 
             if i[1] == j[1] : 
                 frame_cars_id_tuples.append((int(i[2]),int(i[3]),int(i[4]),int(i[5]),int(j[2]),int(j[3]),int(j[4]),int(j[5])))
-
-
 
     frame_boxes1 = img_bounding_boxes[files[int(image1)-1]]
     frame_boxes2 = img_bounding_boxes[files[int(image2)-1]]
@@ -235,10 +223,7 @@ def calculate_ids(image1,image2) :
     for i in frame_cars_id_tuples : 
         if i not in frame_boxes_id_tuples and ((i[0],i[1],i[2],i[3]) in frame_boxes_id_tuples) : 
             ids += 1
-
     return ids
-
-
 
 #begin iou calculations 
 def use_iou():
@@ -315,6 +300,8 @@ def use_iou():
             cv.imwrite('img2/'+img2, img)
         else : 
             cv.imwrite('img2/'+img2, img)
+
+        # Find sum of false positives, ids, false negatives and total objects
         fp += find_fp(str(i + 2))
         ids += calculate_ids(str(i + 1), str(i + 2))
         gt_t += find_gt_t(str(i + 2))
@@ -323,14 +310,8 @@ def use_iou():
     return (fn,fp,ids,gt_t)
 
 #Running all the functions
-
 populate_variables(files)
 create_folder("img2")
 first_image_init()
 fn, fp, ids, gt_t = use_iou()
 print(f"The mota of our algorithm is : \n {calc_mota(fn,fp,ids,gt_t)}")
-# print(color_dict)
-# #print(find_fp("340"))
-# print("\n", find_fn("92"))
-#print(calculate_ids("34","35"))
-# print(find_gt_t("1"))
