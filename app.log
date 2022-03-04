@@ -19261,7 +19261,6 @@ root - WARNING - ('0', '10')
 root - WARNING - ('0', '3')
 root - WARNING - ('1', '1')
 root - WARNING - ('0', '3')
-root - ERROR - Failed to create pathimg2
 root - ERROR - (0.7954939341421143, 0, 0, 7)
 root - ERROR - (0.8506037123806092, 1, 1, 7)
 root - ERROR - (0.9313344725803946, 2, 2, 7)

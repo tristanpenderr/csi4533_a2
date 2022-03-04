@@ -228,9 +228,7 @@ def calculate_ids(image1,image2) :
                 frame_boxes_id_tuples.append((i.x1,i.y1,i.l1,i.h1,j.x1,j.y1,j.l1,j.h1))
                 flag == True
         if flag == False : 
-            print((i.x1,i.y1,i.l1,i.h1))
             frame_boxes_id_tuples.append((i.x1,i.y1,i.l1,i.h1))
-
 
     for i in frame_cars_id_tuples : 
         if i not in frame_boxes_id_tuples and ((i[0],i[1],i[2],i[3]) in frame_boxes_id_tuples) : 
