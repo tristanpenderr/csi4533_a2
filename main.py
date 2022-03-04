@@ -222,12 +222,18 @@ def calculate_ids(image1,image2) :
     frame_boxes2 = img_bounding_boxes[files[int(image2)-1]]
 
     for i in frame_boxes1 : 
+        flag = False
         for j in frame_boxes2 : 
             if color_dict[(int(image1), i.x1,i.y1)][1] == color_dict[(int(image2), j.x1,j.y1)][1] : 
                 frame_boxes_id_tuples.append((i.x1,i.y1,i.l1,i.h1,j.x1,j.y1,j.l1,j.h1))
+                flag == True
+        if flag == False : 
+            print((i.x1,i.y1,i.l1,i.h1))
+            frame_boxes_id_tuples.append((i.x1,i.y1,i.l1,i.h1))
+
 
     for i in frame_cars_id_tuples : 
-        if i not in frame_boxes_id_tuples : 
+        if i not in frame_boxes_id_tuples and ((i[0],i[1],i[2],i[3]) in frame_boxes_id_tuples) : 
             ids += 1
 
     return ids
@@ -321,5 +327,5 @@ use_iou()
 # #print(find_fp("340"))
 # print("\n", find_fn("92"))
 
-print(calculate_ids("22","23"))
+print(calculate_ids("34","35"))
 # print(find_gt_t("1"))
