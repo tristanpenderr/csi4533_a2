@@ -119,18 +119,19 @@ def create_folder(new_path):
         logging.error('Failed to create path' + new_path)
     else:
         logging.info("Succesfully created new path")
-    
+
+
 # initialize first image with rectangles
 def first_image_init():
-    img = cv.imread(dict[int(rectangle_englobantes[0][0])])
-    for i in img_bounding_boxes[files[0]] :
+    img = cv.imread(dict[86])
+    for i in img_bounding_boxes[files[85]] :
             # check if height is greater then length -> verify with TA if this is the best way to do this
         if i.h1 <= (1.25 * i.l1) : 
             new_color = generate_color()
             cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
-            color_dict[(1,i.x1,i.y1)] = new_color
+            color_dict[(86,i.x1,i.y1)] = new_color
         
-    cv.imwrite('img2/'+rectangle_englobantes[1][0]+'.jpg', img)
+    cv.imwrite('img2/'+ str(86) +'.jpg', img)
 
 #find the gt in single image
 def find_gt_t(image):
@@ -241,7 +242,7 @@ def calculate_ids(image1,image2) :
 #begin iou calculations 
 def use_iou():
     box_id = 0
-    for i in range(len(files) - 1) :
+    for i in range(85, 467 - 1) :
         fn = 0
         fp = 0
         ids = 0
@@ -324,6 +325,5 @@ use_iou()
 # print(color_dict)
 # #print(find_fp("340"))
 # print("\n", find_fn("92"))
-
-print(calculate_ids("34","35"))
+#print(calculate_ids("34","35"))
 # print(find_gt_t("1"))
