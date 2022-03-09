@@ -86,9 +86,9 @@ def populate_variables(files, box_type):
                     elif files[i] not in img_bounding_boxes :
                         img_bounding_boxes[files[i]] = []
                 elif box_type == "1":
-                    if l1 <= (1.25 * h1) and files[i] not in img_bounding_boxes :  
+                    if (2 * l1) <= h1 and files[i] not in img_bounding_boxes :  
                         img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
-                    elif l1 <= (1.25 * h1): 
+                    elif (2 * l1) <= h1: 
                         img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
                     elif files[i] not in img_bounding_boxes :
                         img_bounding_boxes[files[i]] = []
@@ -129,14 +129,20 @@ def create_folder(new_path):
         logging.info("Succesfully created new path")
 
 # initialize first image with rectangles
-def first_image_init():
+def first_image_init(box_type):
     img = cv.imread(dict[86])
     for i in img_bounding_boxes[files[85]] :
             # check if height is greater then length -> verify with TA if this is the best way to do this
-        if i.h1 <= (1.25 * i.l1) : 
-            new_color = generate_color()
-            cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
-            color_dict[(86,i.x1,i.y1)] = new_color
+        if box_type == "1":
+            if (2 * i.l1) <= i.h1:
+                new_color = generate_color()
+                cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
+                color_dict[(86,i.x1,i.y1)] = new_color
+        elif box_type == "3":
+            if i.h1 <= (1.25 * i.l1) : 
+                new_color = generate_color()
+                cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
+                color_dict[(86,i.x1,i.y1)] = new_color
         
     cv.imwrite('img2/'+ str(86) +'.jpg', img)
 
@@ -320,6 +326,6 @@ def use_iou():
 #Running all the functions
 populate_variables(files, "1")
 create_folder("img2")
-first_image_init()
+first_image_init("1")
 fn, fp, ids, gt_t = use_iou()
 print(f"The mota of our algorithm is : \n {calc_mota(fn,fp,ids,gt_t)}")
