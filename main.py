@@ -51,7 +51,7 @@ tmp_matrix = []
 tmp_img1 = []
 tmp_img2 = []
 
-def populate_variables(files):
+def populate_variables(files, box_type):
     #populate dict with filenames for each picture
     for i in range(len(files)):
         dict[i+1] = 'img1/'+files[i]
@@ -67,7 +67,7 @@ def populate_variables(files):
             rectangle_englobantes_tracking.append(line.strip("\n").split(','))
 
     #populate rectangle_englobantes_tracking_voiture with only car information
-    get_cars()
+    get_boxes(box_type)
 
     #populate dict with list of bounding boxes for each picture 
     for i in range(len(files)):
@@ -78,21 +78,29 @@ def populate_variables(files):
                 l1 = int(rectangle_englobantes[j][4])
                 h1 = int(rectangle_englobantes[j][5])
                 logging.warning((rectangle_englobantes[j][6],rectangle_englobantes[j][7]))
-                if h1 <= (1.25 * l1) and files[i] not in img_bounding_boxes :  
-                    img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
-                elif h1 <= (1.25 * l1): 
-                    img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
-                elif files[i] not in img_bounding_boxes :
-                    img_bounding_boxes[files[i]] = []
+                if box_type == "3":
+                    if h1 <= (1.25 * l1) and files[i] not in img_bounding_boxes :  
+                        img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
+                    elif h1 <= (1.25 * l1): 
+                        img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
+                    elif files[i] not in img_bounding_boxes :
+                        img_bounding_boxes[files[i]] = []
+                elif box_type == "1":
+                    if l1 <= (1.25 * h1) and files[i] not in img_bounding_boxes :  
+                        img_bounding_boxes[files[i]] = [make_box(x1,y1,l1,h1)]
+                    elif l1 <= (1.25 * h1): 
+                        img_bounding_boxes[files[i]] += [make_box(x1,y1,l1,h1)]
+                    elif files[i] not in img_bounding_boxes :
+                        img_bounding_boxes[files[i]] = []
                     
 # function for getting image from dict
 def get_image(img_num)  :
     return cv.imread(dict[img_num])
 
 #get all the cars in the gt_tracking file
-def get_cars() : 
+def get_boxes(box_type) : 
     for i in range(len(rectangle_englobantes_tracking)):
-        if rectangle_englobantes_tracking[i][7] == "3" :
+        if rectangle_englobantes_tracking[i][7] == box_type :
             rectangle_englobantes_tracking_voiture.append(rectangle_englobantes_tracking[i])
 
 # generate random color 
@@ -310,7 +318,7 @@ def use_iou():
     return (fn,fp,ids,gt_t)
 
 #Running all the functions
-populate_variables(files)
+populate_variables(files, "1")
 create_folder("img2")
 first_image_init()
 fn, fp, ids, gt_t = use_iou()
