@@ -18,3 +18,6 @@ fn, fp, ids, gt_t = use_iou()
 
 MOTA reçu pour les voitures: 0.95039...
 MOTA reçu pour les piétons: 0.68754...
+
+
+In the future, we wish to remove global variables to allow for clearer code. 

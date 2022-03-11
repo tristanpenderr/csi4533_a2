@@ -129,22 +129,25 @@ def create_folder(new_path):
         logging.info("Succesfully created new path")
 
 # initialize first image with rectangles
-def first_image_init(box_type):
+def first_image_init(box_type, write):
     img = cv.imread(dict[86])
     for i in img_bounding_boxes[files[85]] :
             # check if height is greater then length -> verify with TA if this is the best way to do this
         if box_type == "1":
             if (2 * i.l1) <= i.h1:
                 new_color = generate_color()
-                cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
+                if write : 
+                    cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
                 color_dict[(86,i.x1,i.y1)] = new_color
         elif box_type == "3":
             if i.h1 <= (1.25 * i.l1) : 
                 new_color = generate_color()
-                cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
+                if write :
+                    cv.rectangle(img,(int(i.x1),int(i.y1+i.h1)), (int(i.x1+i.l1),int(i.y1)), new_color,3)
                 color_dict[(86,i.x1,i.y1)] = new_color
         
-    cv.imwrite('img2/'+ str(86) +'.jpg', img)
+    if write : 
+        cv.imwrite('img2/'+ str(86) +'.jpg', img)
 
 #find the gt in single image
 def find_gt_t(image):
@@ -240,7 +243,7 @@ def calculate_ids(image1,image2) :
     return ids
 
 #begin iou calculations 
-def use_iou():
+def use_iou(write):
     box_id = 0
     fn = 0
     fp = 0
@@ -294,7 +297,8 @@ def use_iou():
                     y1 = box_list2[j].y1
                     l1 = box_list2[j].l1
                     h1 = box_list2[j].h1
-                    cv.rectangle(img,(int(x1),int(y1+h1)), (int(x1+l1),int(y1)), new_color,3)
+                    if write : 
+                        cv.rectangle(img,(int(x1),int(y1+h1)), (int(x1+l1),int(y1)), new_color,3)
                     color_dict[(i+2,x1,y1)] = [new_color, box_id]          
                 else : 
                     x1 = box_list2[j].x1
@@ -307,13 +311,15 @@ def use_iou():
 
                     new_color = color_dict[(i+1,orig.x1, orig.y1)][0]
                     box_new_id = color_dict[(i+1,orig.x1, orig.y1)][1]
-                    cv.rectangle(img,(int(x1),int(y1+h1)), (int(x1+l1),int(y1)), new_color,3)
+                    if write :    
+                        cv.rectangle(img,(int(x1),int(y1+h1)), (int(x1+l1),int(y1)), new_color,3)
                     color_dict[(i+2,x1,y1)] = [new_color, box_new_id]
 
-            
-            cv.imwrite('img2/'+img2, img)
-        else : 
-            cv.imwrite('img2/'+img2, img)
+            if write : 
+                cv.imwrite('img2/'+img2, img)
+        else :
+            if write :  
+                cv.imwrite('img2/'+img2, img)
 
         # Find sum of false positives, ids, false negatives and total objects
         fp += find_fp(str(i + 2))
@@ -324,8 +330,29 @@ def use_iou():
     return (fn,fp,ids,gt_t)
 
 #Running all the functions
+
+## Calculating Pedestrian Mota
 populate_variables(files, "1")
 create_folder("img2")
-first_image_init("1")
-fn, fp, ids, gt_t = use_iou()
-print(f"The mota of our algorithm is : \n {calc_mota(fn,fp,ids,gt_t)}")
+first_image_init("1", False)
+fn, fp, ids, gt_t = use_iou(False)
+print(f"The mota for pedestrians of our algorithm is : \n {calc_mota(fn,fp,ids,gt_t)} \n")
+
+
+##### Reset Variables
+rectangle_englobantes = []
+rectangle_englobantes_tracking = []
+rectangle_englobantes_tracking_voiture = []
+color_dict = {}
+img_bounding_boxes = {}
+
+##### Reset Variables
+
+
+## Caluclating car mota
+populate_variables(files, "3")
+create_folder("img2")
+first_image_init("3", False)
+fn, fp, ids, gt_t = use_iou(False)
+print(f"The mota for cars of our algorithm is : \n {calc_mota(fn,fp,ids,gt_t)} \n")
+
